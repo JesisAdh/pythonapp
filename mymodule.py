@@ -1,13 +1,14 @@
+import sqlite3 as sq
+import csv
+import mymodule as md
 def intValidation(prompt,error_msg):
     while True:
         try:
             return int(input(prompt))
         except ValueError:
             print(error_msg)
-
 class InvalidEmailError(Exception):
     pass
-
 def emailValidation(prompt):
     while True:
         email = input(prompt)
@@ -18,12 +19,6 @@ def emailValidation(prompt):
                 raise InvalidEmailError("Invalid email format.")
             except InvalidEmailError as e:
                 print(e)
-
-
-
-import sqlite3 as sq
-import csv
-import mymodule as md
 conn = sq.connect('database.db')
 cursor = conn.cursor()
 
@@ -39,25 +34,21 @@ def create_db():
     ''')
     conn.commit()
 create_db()
-
 def add_record(a,b,c,d):
     cursor.execute("INSERT INTO account (id,username,email,password) VALUES (?,?,?,?)",(a,b,c,d)) 
     conn.commit()
-
-def read_record():
-    cursor.execute("SELECT * FROM account")
-    records = cursor.fetchall()
-    for record in records:
-        print(f"ID: {record[0]} Username: {record[1]} Email: {record[2]} Password: {record[3]}")
-
+def get_records(record_id=None):
+    if record_id is not None:
+        cursor.execute("SELECT * FROM account WHERE id = ?", (record_id,))
+    else:
+        cursor.execute("SELECT * FROM account")
+    return cursor.fetchall()
 def update_record(a,b,c,d,e):
-    cursor.execute("UPDATE account SET id=?,username=?,email=?,password=? WHERE username=?",(a,b,c,d,e))
+    cursor.execute("UPDATE account SET id=?,username=?,email=?,password=? WHERE id=?",(a,b,c,d,e))
     conn.commit()
-
 def delete_record(a):
-    cursor.execute("DELETE FROM account WHERE username=?", (a,))
+    cursor.execute("DELETE FROM account WHERE id=?", (a,))
     conn.commit()
-
 def export_record():
     cursor.execute("SELECT * FROM account")
     records = cursor.fetchall()
